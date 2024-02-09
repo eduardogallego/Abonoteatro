@@ -1,6 +1,7 @@
 /.idea/
-/config/config.json
 /abonoteatro.log
+/config.json
 /chromedriver
+/events.json
 /venv/
 /workingdir/

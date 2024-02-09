@@ -4,9 +4,8 @@ import logging.handlers
 
 
 class Config:
-
     def __init__(self):
-        with open('config/config.json', "r") as config_file:
+        with open('config.json', "r") as config_file:
             self._config = json.load(config_file)
 
     def get(self, parameter):
