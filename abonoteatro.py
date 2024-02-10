@@ -17,7 +17,7 @@ config = Config()
 
 ini_tt = time.time()
 logger.info("Start web scrapping")
-service = Service(executable_path='./chromedriver')
+service = Service(executable_path=config.get('chromedriver_path'))
 options = webdriver.ChromeOptions()
 options.add_argument("--headless=new")
 driver = webdriver.Chrome(options=options, service=service)
@@ -65,11 +65,11 @@ for event in events:
 
 # Send new events by email
 if len(new_events) > 0:
-    logger.info(f"Send new events")
+    logger.info(f"Notify {len(new_events)} new events")
     mail_tittle = "Novedades Abonoteatro"
     body = f"{mail_tittle}:\n"
     for event in new_events:
-        body += f"* {event['title']}, {event['subtitle']}, {event['location']}, {event['prize']}\n"
+        body += f"* {event['title']}, {event['subtitle']}, {event['location']}, {event['price']}\n"
     msg = MIMEText(body)
     msg['Subject'] = mail_tittle
     msg['From'] = config.get('gmail_user')
@@ -81,5 +81,4 @@ if len(new_events) > 0:
 # Store events in file
 with open(config.get('events_file'), 'w') as outfile:
     json.dump(active_events, outfile)
-logger.info(f"Finished in {round(time.time() - ini_tt, 2)} seconds - "
-            f"{len(active_events)} events found ({len(new_events)} new ones)")
+logger.info(f"{len(active_events)} events found in {round(time.time() - ini_tt, 2)} seconds")
