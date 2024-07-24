@@ -42,7 +42,7 @@ events = []
 for element in elements:
     content = element.text
     tokens = element.text.splitlines()
-    if len(tokens) > 0:
+    if len(tokens) >= 5:
         title = tokens[0].upper()
         if title != 'FECHA EVENTO':
             subtitle = tokens[1].upper() if len(tokens) == 6 else ''
