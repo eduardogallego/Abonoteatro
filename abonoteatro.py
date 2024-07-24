@@ -42,11 +42,13 @@ events = []
 for element in elements:
     content = element.text
     tokens = element.text.splitlines()
-    title = tokens[0].upper()
-    subtitle = tokens[1].upper() if len(tokens) == 6 else ''
-    location = tokens[-4].upper()
-    price = float(tokens[-2][:-1].replace(',', '.'))
-    events.append({'title': title, 'subtitle': subtitle, 'location': location, 'price': price})
+    if len(tokens) > 0:
+        title = tokens[0].upper()
+        if title != 'FECHA EVENTO':
+            subtitle = tokens[1].upper() if len(tokens) == 6 else ''
+            location = tokens[-4].upper()
+            price = float(tokens[-2][:-1].replace(',', '.'))
+            events.append({'title': title, 'subtitle': subtitle, 'location': location, 'price': price})
 driver.close()
 events = sorted(events, key=lambda e: e['title'])
 events = sorted(events, key=lambda e: e['price'], reverse=True)
