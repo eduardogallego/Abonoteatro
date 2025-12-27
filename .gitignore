@@ -1,7 +1,7 @@
 /.idea/
+/.venv/
+/__pycache__/
 /abonoteatro.log
 /config.json
-/chromedriver
 /events.json
-/venv/
 /workingdir/

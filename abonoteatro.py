@@ -5,8 +5,8 @@ import time
 
 from email.mime.text import MIMEText
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from utils import Config, Logger
@@ -17,10 +17,14 @@ config = Config()
 
 ini_tt = time.time()
 logger.info("Start web scrapping")
-service = Service(executable_path=config.get('chromedriver_path'))
-options = webdriver.ChromeOptions()
-options.add_argument("--headless=new")
-driver = webdriver.Chrome(options=options, service=service)
+chrome_options = Options()
+chrome_options.add_argument("--headless=new")
+chrome_options.add_argument("--window-size=1920,1080")
+chrome_options.add_argument("--disable-gpu")
+prefs = { "profile.default_content_setting_values.geolocation": 2 }     # 1 allow, 2 block
+chrome_options.add_argument("--disable-notifications")
+chrome_options.add_experimental_option("prefs", prefs)
+driver = webdriver.Chrome(options=chrome_options)
 driver.get(config.get('abonoteatro_url'))
 
 # Close cookies
@@ -32,6 +36,11 @@ WebDriverWait(driver, 10).until(EC.visibility_of_element_located(
     (By.XPATH, "//input[@id='nabonadologin']"))).send_keys(config.get('abonoteatro_user'))
 driver.find_element("xpath", "//input[@id='contrasenalogin']").send_keys(config.get('abonoteatro_password'))
 driver.find_element("xpath", "//input[@value='Entrar']").click()
+
+# Wait for page change and complete
+time.sleep(2)
+while driver.execute_script("return document.readyState") != "complete":
+    time.sleep(0.5)
 
 # Get events
 WebDriverWait(driver, 10).until(EC.frame_to_be_available_and_switch_to_it((By.XPATH, "//iframe")))
@@ -47,8 +56,9 @@ for element in elements:
         if title != 'FECHA EVENTO':
             subtitle = tokens[1].upper() if len(tokens) == 6 else ''
             location = tokens[-4].upper()
-            price = float(tokens[-2][:-1].replace(',', '.'))
-            events.append({'title': title, 'subtitle': subtitle, 'location': location, 'price': price})
+            if "MÁLAGA" not in location:
+                price = float(tokens[-2][:-1].replace(',', '.'))
+                events.append({'title': title, 'subtitle': subtitle, 'location': location, 'price': price})
 driver.close()
 events = sorted(events, key=lambda e: e['title'])
 events = sorted(events, key=lambda e: e['price'], reverse=True)
